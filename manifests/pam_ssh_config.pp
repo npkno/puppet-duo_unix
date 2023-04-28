@@ -11,15 +11,52 @@
 # @example
 #   include duo_unix::pam_ssh_config
 class duo_unix::pam_ssh_config inherits duo_unix::params {
-  augeas { 'Duo Security SSH Configuration':
-    context => '/files/etc/ssh/sshd_config',
-    changes => [
-      'set UsePAM yes',
-      'set UseDNS no',
-      'set ChallengeResponseAuthentication yes',
-    ],
-    require => Package[$duo_unix::params::duo_package],
-    notify  => Service[$duo_unix::params::ssh_service],
+  include stdlib
+
+  case $facts['os']['name'] {
+    # Handle ubuntu differences for versions after 20.04
+    'Ubuntu': {
+      if os_version_gte('Ubuntu', '20.04') {
+        augeas { 'Duo Security SSH Configuration':
+          context => '/files/etc/ssh/sshd_config',
+          changes => [
+            'set UsePAM yes',
+            'set UseDNS no',
+            'set KbdInteractiveAuthentication yes',
+            'set AuthenticationMethods publickey,keyboard-interactive',
+          ],
+          require => Package[$duo_unix::params::duo_package],
+          notify  => Service[$duo_unix::params::ssh_service],
+        }
+      } else {
+        # Use default configuration
+        augeas { 'Duo Security SSH Configuration':
+          context => '/files/etc/ssh/sshd_config',
+          changes => [
+            'set UsePAM yes',
+            'set UseDNS no',
+            'set ChallengeResponseAuthentication yes',
+            'set AuthenticationMethods publickey,keyboard-interactive',
+          ],
+          require => Package[$duo_unix::params::duo_package],
+          notify  => Service[$duo_unix::params::ssh_service],
+        }
+      }
+    }
+    default: {
+      # Default configuration
+      augeas { 'Duo Security SSH Configuration':
+        context => '/files/etc/ssh/sshd_config',
+        changes => [
+          'set UsePAM yes',
+          'set UseDNS no',
+          'set ChallengeResponseAuthentication yes',
+          'set AuthenticationMethods publickey,keyboard-interactive',
+        ],
+        require => Package[$duo_unix::params::duo_package],
+        notify  => Service[$duo_unix::params::ssh_service],
+      }
+    }
   }
 
   if !defined(Service[$duo_unix::params::ssh_service]) {

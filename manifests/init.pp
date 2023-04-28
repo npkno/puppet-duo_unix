@@ -134,7 +134,9 @@ class duo_unix (
   } else {
     $owner = 'root'
     if ($manage_pam) {
-      if ($manage_pam and $usage == 'login') {
+      # Upstream logic here doesn't make sense
+      # include PAM SSH config if we want to manage SSH
+      if ($manage_ssh) {
         include duo_unix::pam_ssh_config
       }
 

@@ -28,9 +28,10 @@ class duo_unix::params {
 
   case $facts['os']['family'] {
     'Debian': {
-      $duo_package = 'duo-unix'
-      $ssh_service = 'sshd'
-      $pam_file    = '/etc/pam.d/common-auth'
+      $duo_package  = 'duo-unix'
+      $ssh_service  = 'sshd'
+      $pam_file     = '/etc/pam.d/common-auth'
+      $pam_ssh_file = '/etc/pam.d/sshd'
     }
     'RedHat': {
       $duo_package = 'duo_unix'
@@ -39,6 +40,7 @@ class duo_unix::params {
         '5' => '/etc/pam.d/system-auth',
         default => '/etc/pam.d/password-auth',
       }
+      $pam_ssh_file = '/etc/pam.d/sshd'
     }
     default: {
       fail("Module ${module_name} does not support ${facts['os']['release']['full']}")
