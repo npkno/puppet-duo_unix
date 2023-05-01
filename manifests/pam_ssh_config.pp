@@ -14,9 +14,9 @@ class duo_unix::pam_ssh_config inherits duo_unix::params {
   include stdlib
 
   case $facts['os']['name'] {
-    # Handle ubuntu differences for versions after 20.04
+    # Handle ubuntu differences for versions > 22
     'Ubuntu': {
-      if os_version_gte('Ubuntu', '20.04') {
+      if os_version_gte('Ubuntu', '21.00') {
         augeas { 'Duo Security SSH Configuration':
           context => '/files/etc/ssh/sshd_config',
           changes => [
